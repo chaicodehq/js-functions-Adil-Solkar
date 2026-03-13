@@ -46,16 +46,74 @@
  */
 export function createFilter(field, operator, value) {
   // Your code here
+  return function (obj) {
+    const objValue = obj[field];
+
+    switch (operator) {
+      case '>':
+        return objValue > value;
+      case '<':
+        return objValue < value;
+      case '>=':
+        return objValue >= value;
+      case '<=':
+        return objValue <= value;
+      case '===':
+        return objValue === value;
+      default:
+        return false;
+    }
+  }
 }
 
 export function createSorter(field, order = "asc") {
   // Your code here
+  return function (a,b) {
+    const valA = a[field];
+    const valB = b[field];
+
+    let result = 0;
+
+    if (typeof valA === 'string' && typeof valB === 'string') {
+      result = valA.localeCompare(valB);
+    } else {
+      if (valA < valB) {
+        result = -1;
+      } else if (valA > valB) {
+        result = 1;
+      }
+    }
+    return order === "desc" ? result * -1 : result;
+  };
 }
 
 export function createMapper(fields) {
   // Your code here
+  return function(obj) {
+    const newObj = {};
+
+    for (let i = 0; i < fields.length; i++) {
+      const field = fields[i];
+    
+      if (field in obj) {
+        newObj[field] = obj[field];
+      }
+    }
+    return newObj;
+  };
 }
 
 export function applyOperations(data, ...operations) {
   // Your code here
+  if (!Array.isArray(data)) {
+    return [];
+  }
+  
+  let currentResult = data;
+  
+  for (let i = 0; i < operations.length; i++) {
+    const currentOperation = operations[i];
+    currentResult = currentOperation(currentResult);
+  }
+  return currentResult;
 }
